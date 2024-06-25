@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import { Button, TextField } from '@mui/material';
-/* import EditClient from '../components/ClientEdit'; */
+import EditClient from '../components/ClientEdit';
 import { DateTime } from "luxon";
 import CableIcon from '@mui/icons-material/Cable';
 import "../config"
@@ -30,8 +30,10 @@ export default function ClientsInventory() {
 
     const [clients, setClients] = React.useState([])
     console.log(clients)
-    /*  const [editOpen, setEditOpen] = React.useState(false); */
-    const [selectedValue, setSelectedValue] = React.useState()
+    const [editOpen, setEditOpen] = React.useState(false);
+    const [selectedValue, setSelectedValue] = React.useState({
+        name: "Defecto"
+    })
     const [addOpen, setAddOpen] = React.useState(false)
 
 
@@ -42,19 +44,20 @@ export default function ClientsInventory() {
 
     }
 
-    /* const handleCloseEdit = (value) => {
+    const handleCloseEdit = (value) => {
         setEditOpen(false);
         setSelectedValue(value);
-    }; */
+    };
 
     const handleCloseAdd = () => {
         setAddOpen(false);
     };
 
-    /* const handleListItemClick = (value) => {
+    const handleListItemClick = (value) => {
+        console.log(value)
         setSelectedValue(value)
         setEditOpen(true);
-    }; */
+    };
 
 
     //para ejecutar la peticion luego de que se rendericen los elementos
@@ -78,13 +81,14 @@ export default function ClientsInventory() {
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
-                        <TableRow>
+                        <TableRow >
                             <TableCell>ID</TableCell>
                             <TableCell align="center">Nombre</TableCell>
                             <TableCell align="center">Tipo</TableCell>
                             <TableCell align="center">Debito</TableCell>
                             <TableCell align="center">Credito usado</TableCell>
-                            <TableCell align="center"></TableCell>
+                            <TableCell align="center">editar</TableCell>
+
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -92,6 +96,8 @@ export default function ClientsInventory() {
                             <TableRow
                                 key={row.id}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                onClick={() => handleListItemClick(row)}
+
                             >
                                 <TableCell component="th" scope="row">
                                     {row.id}
@@ -103,23 +109,25 @@ export default function ClientsInventory() {
                                 <TableCell align="center">
                                     {row.credit_used}
                                 </TableCell>
+                                <TableCell align="center">
+                                    edit
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </TableContainer >
-            {/* 
+
             <EditClient
                 selectedValue={selectedValue}
                 open={editOpen}
                 onClose={handleCloseEdit}
                 getClients={() => getClients()} />
-*/
-                <AddClient
-                    open={addOpen}
-                    onClose={handleCloseAdd}
 
-                />}
+            <AddClient
+                open={addOpen}
+                onClose={handleCloseAdd}
+            />
         </>
     );
 }

@@ -79,7 +79,7 @@ function Additem(props) {
     return (
         <Dialog open={open} fullWidth={true} >
 
-            <DialogTitle>Agregar nuevo iteme</DialogTitle>
+            <DialogTitle>Agregar nuevo item</DialogTitle>
             <IconButton
                 aria-label="close"
                 onClick={handleClose}

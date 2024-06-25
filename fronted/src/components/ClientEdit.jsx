@@ -15,9 +15,11 @@ export default function EditClient(props) {
     const [updatedClient, setUpdatedClient] = React.useState(
         {
             name: selectedValue.name,
-            debit: selectedValue.debit
+            debit: selectedValue.debit,
+
         }
     )
+
 
 
 
@@ -25,9 +27,9 @@ export default function EditClient(props) {
         setUpdatedClient(selectedValue)
     }, [selectedValue])
 
-    /*  React.useEffect(() => {
-         setUpdatedClient(updatedClient)
-     }, [updatedClient]) */
+    /*   React.useEffect(() => {
+          setUpdatedClient(updatedClient)
+      }, [updatedClient]) */
 
 
 
@@ -48,16 +50,16 @@ export default function EditClient(props) {
         onClose(value);
     };
 
-    const saveData = () => {
+    /* const saveData = () => {
         handleClose()
-        console.log("guardado")
+        console.log("guardado", updatedClient)
 
     }
+ */
 
-
-    const updateClient = async () => {
+    const saveData = async () => {
         try {
-            const id = updatedClient._id
+            const id = updatedClient.id
 
             /*  const res = await fetch(`clients_inventory/${id}`, { */
             const res = await fetch(`http://localhost:5000/clients_inventory/${id}`, {
@@ -82,11 +84,13 @@ export default function EditClient(props) {
     }
 
     const handleChange = (e) => {
-
         const { name, value } = e.target
         setUpdatedClient(prevState => ({
             ...prevState, [name]: value
-        }))
+        })
+        )
+        console.log(e.target)
+        console.log(updatedClient)
 
     }
 
@@ -120,7 +124,7 @@ export default function EditClient(props) {
             <TextField
                 required
                 id="filled-required"
-                label="name"
+                label="Nombre"
                 defaultValue={selectedValue.name}
                 variant="filled"
                 name="name"
@@ -128,27 +132,27 @@ export default function EditClient(props) {
             />
             <TextField
                 required
-                id="filled-required"
-                label="Dirección IP"
-                defaultValue={updatedClient.inventory_ip}
+                id="type"
+                label="Tipo"
+                defaultValue={selectedValue.type}
                 variant="filled"
-                name="ip"
+                name="type"
                 onChange={handleChange}
             />
             <TextField
                 required
-                label="Servicio"
-                defaultValue={selectedValue.service}
+                label="Débito"
+                defaultValue={selectedValue.debit}
                 variant="filled"
-                name="service"
+                name="debit"
                 onChange={handleChange}
             />
             <TextField
                 required
-                label="TAG"
-                defaultValue={selectedValue.tag}
+                label="Crédito"
+                defaultValue={selectedValue.credit_used}
                 variant="filled"
-                name="tag"
+                name="credit"
                 onChange={handleChange}
             />
             <TextField
@@ -161,7 +165,7 @@ export default function EditClient(props) {
             />
 
 
-            <Button onClick={updateClient}>Guardar</Button>
+            <Button onClick={() => saveData()}>Guardar</Button>
             <DeleteClient
                 selectedValue={selectedValue}
                 open={deleteOpen}

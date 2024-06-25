@@ -2,12 +2,20 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from routes.accounts import accounts
+from routes.categories import categories
+from routes.subcategories import subcategories
+from routes.benefited import benefited
+from routes.transactions import transactions
 
 
 app = Flask(__name__)
 
 
 app.register_blueprint(accounts)
+app.register_blueprint(categories)
+app.register_blueprint(subcategories)
+app.register_blueprint(benefited)
+app.register_blueprint(transactions)
 
 
 """ @app.route('/mesh/wlc', methods=['GET'])
