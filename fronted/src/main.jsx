@@ -12,6 +12,7 @@ import Clients from "./routes/clients";
 import Signal from "./routes/signal";
 import Pruebas from "./routes/pruebas";
 import Mesh from "./routes/mesh";
+import Transactions from "./routes/Transactions"
 import Monitor from "./routes/monitor";
 import Map from "./routes/map";
 import ClientsInventory from "./routes/clients_inventory";
@@ -53,8 +54,8 @@ const router = createBrowserRouter([
         element: <Pruebas />
       },
       {
-        path: "mesh-tree",
-        element: <Mesh />
+        path: "transactions",
+        element: <Transactions />
       },
       {
         path: "clients_inventory",

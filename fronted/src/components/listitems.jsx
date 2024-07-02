@@ -26,6 +26,9 @@ import StorageIcon from '@mui/icons-material/Storage';
 import PodcastsIcon from '@mui/icons-material/Podcasts';
 import CellTowerIcon from '@mui/icons-material/CellTower';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import AddBusinessIcon from '@mui/icons-material/AddBusiness';
+import AddCardIcon from '@mui/icons-material/AddCard';
+import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
 
 export const MainListItems = () => {
     const [open, setOpen] = React.useState(false);
@@ -43,12 +46,12 @@ export const MainListItems = () => {
                     <ListItemText primary="Monitoreo Red Mesh" color='primary' />
                 </ListItemButton>
             </LinkRoute>
-            <LinkRoute to={`mesh-tree`}>
+            <LinkRoute to={`transactions`}>
                 <ListItemButton>
                     <ListItemIcon>
-                        <DeviceHubIcon />
+                        <CurrencyExchangeIcon />
                     </ListItemIcon>
-                    <ListItemText primary="Arbol Mesh" />
+                    <ListItemText primary="Transacciones" />
                 </ListItemButton>
             </LinkRoute>
             < LinkRoute to={`signal`}>
@@ -62,9 +65,9 @@ export const MainListItems = () => {
             <LinkRoute to={`clients`}>
                 <ListItemButton>
                     <ListItemIcon>
-                        <TapAndPlayIcon />
+                        <AddCardIcon />
                     </ListItemIcon>
-                    <ListItemText primary="Clientes" />
+                    <ListItemText primary="Cuentas personales" />
                 </ListItemButton>
             </LinkRoute>
             <LinkRoute to={`map`}>

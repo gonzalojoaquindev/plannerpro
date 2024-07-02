@@ -1,0 +1,13 @@
+{
+    "institution_id": 2,
+    "user_id": 1,
+    "name": "Insomnia",
+    "color": "morado",
+    "type": "credito",
+    "debit": "100000",
+    "credit_limit": 200000,
+    "credit_used": 50000,
+    "payment_date": 24,
+    "start_billed_period": 21,
+    "end_billed_period": 20
+}

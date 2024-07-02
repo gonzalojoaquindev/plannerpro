@@ -1,51 +1,41 @@
 from flask import Flask, jsonify, request, Blueprint
-import mysql.connector
+from db.db import mycursor
+from db.db import db
 
-db = mysql.connector.connect(
-  host="localhost",
-  database= "plannerPro",
-  user="root",
-  password="mysql"
-)
-
-mycursor = db.cursor()
-
-print("conectandome a base de datos")
-
-table={
-    1: "id",
-    2: "nane",
-    3: "birthday",
-    4: "relationship"
-}
-
-
+print("iniciando beneficiados")
 
 
 benefited = Blueprint('benefited', __name__)
 
 
-#---------Cuentas personales------------
+#---------Beneficiados------------
 
 #--create--
 @benefited.route('/benefited', methods=['POST'])
 def createcategory():
-    print("crear cuenta")
+    print("Agregar nuevo beneficiado")
     try:
-        print("estoy dentro del bloque try")
-        category = request.json
-        print(category)
-        print(category["name"])
-        sql = "INSERT INTO benefited (color, icon, name, description) VALUES (%s, %s, %s, %s)"
-        val = (category["color"], category["icon"], category["name"], category["description"])
+        print("Intentando crear nuevo beneficiado")
+        benefited = request.json
+        print(benefited)
+        sql = "INSERT INTO benefited (name, birthday, relationship) VALUES (%s, %s, %s)"
+        val = (benefited["name"], benefited["birthday"], benefited["relationship"])
         
-        """ sql = "INSERT INTO benefited (institution_id, name, color,type, credit_quote, credit_used, payment_date, start_billed_period, end_billed_period, billing_date, debit, user_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        val = (category["institution_id"], category["name"], category["color"], category["type"], category["credit_quote"], category["credit_used"], category["payment_date"], category["start_billed_period"], category["end_billed_period"], category["billing_date"], category["debit"], category["user_id"]) """
-        """ sql = "INSERT INTO benefited (institution_id, user_id, name, color, type, debit, credit_limit, credit_used, payment_date, start_billed_period, end_billed_period) VALUES (null, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        val = (category["institution_id"], category["user_id"], category["name"], category["color"], category["type"], category["debit"], category["credit_limit"], category["credit_used"], category["available_credit"], category["payment_date"], category["start_billed_period"], category["end_billed_period"], category["available_total"], category["balance"]) """
         mycursor.execute(sql, val)
         db.commit()
-        return jsonify({"data":"OK retorne esto no más jeje"})
+
+        mycursor.execute("SELECT * FROM benefited ORDER BY id DESC limit 1")
+        result = mycursor.fetchall()
+        item = result[0]
+        print(item)
+        benefited = {
+            "id": item[0],
+            "name": item[1],
+            "birthday": item[2],
+            "relationship": item[3]
+        }
+
+        return jsonify({"msg":"Beneficiado agregado con exito"}, benefited)
     except Exception as e:
        print('Error al crear la cuenta', e)
        return jsonify({"data":"no OK"})
@@ -53,28 +43,30 @@ def createcategory():
 
 #--read all--
 @benefited.route('/benefited', methods=['GET'])
-def getbenefited():
+def getBenefited():
     try:
-        print("obtener cuentas")
+        print("Obteniendo beneficiados")
         mycursor.execute("SELECT * FROM benefited")
         results = mycursor.fetchall()
         benefited = []
         """    print(results) """
-        for category in results:
+        for item in results:
             benefited.append({
-                'id': category[0],
-                'color': category[1],
-                'icon': category[2],
-                'name': category[3],
-                'description': category[4]
+                'id': item[0],
+                'name': item[1],
+                'birthday': item[2],
+                'relationship': item[3]
                 })
             
-        for x in benefited:
-            print(x)
+        """ for x in benefited:
+            print(x) """
+        print(f"Se obtuvieron {len(benefited)} beneficiados")
         
         return jsonify(benefited)
+        
     except Exception as e:
        print('Error al obtener las cuentas', e)
+       return jsonify({"hola":"fallé"})
 
 #--read--------------------------------------------------->
 @benefited.route('/benefited/<id>', methods=['GET'])
@@ -87,7 +79,13 @@ def getcategory(id):
         mycursor.execute(sql, filtro)
         result = mycursor.fetchall()
         print(result)
-        return jsonify({"cuenta":result})
+        benefited = {
+            'id': result[0][0],
+            'name': result[0][1],
+            'birthday': result[0][2],
+            'relationship': result[0][3]
+        }
+        return jsonify({"msg":"Benefidiado obtenido correctamente"},benefited)
     except Exception as e:
        print('Error al obtener la cuenta', e)
        return jsonify({e: "error"})
@@ -101,15 +99,15 @@ def updateClient(id):
     try:
         print("editando cliente", id)
         print(request.json)
-        category = request.json
-        sql = "UPDATE benefited SET color = %s, icon = %s, name = %s, description = %s where id = %s"
-        val = (category["color"], category["icon"], category["name"], category["description"], id)
+        benefited = request.json
+        sql = "UPDATE benefited SET name = %s, birthday = %s, relationship = %s where id = %s"
+        val = (benefited["name"], benefited["birthday"], benefited["relationship"], id)
         mycursor.execute(sql, val)
         db.commit()
-        return jsonify({"data":"*Si se logró agregar cliente"})
+        return jsonify({"data":"Beneficiado editado correctamente"},{"id":id})
     except Exception as e:
        print('error al actualizar el cliente', e)
-       return jsonify({"data":"*No se logró agregar cliente"})
+       return jsonify({"data":"No se logró agregar cliente"})
 
 #--delete
 @benefited.route('/benefited/<id>', methods=['DELETE'])
@@ -119,7 +117,7 @@ def deleteUser(id):
         val = (id,)
         mycursor.execute(sql, val)
         db.commit()
-        return jsonify({'message': 'Dispositivo eliminado'})
+        return jsonify({'msg': 'Beneficiado eliminidado correctamente'}, {'id':id})
     except Exception as e:
        print('error al actualizar el cliente', e)
        return jsonify({"data":"*No se logró eliminar la cuenta"})

@@ -1,22 +1,8 @@
 from flask import Flask, jsonify, request, Blueprint
-import mysql.connector
+from db.db import mycursor
+from db.db import db
 
-db = mysql.connector.connect(
-  host="localhost",
-  database= "plannerPro",
-  user="root",
-  password="mysql"
-)
-
-mycursor = db.cursor()
-
-print("conectandome a base de datos")
-
-
-""" sql = "INSERT INTO users (id, name, email, password, avatar, initials, birthday) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-val = (2, 'Natalia', 'nati@gmail.com','123','','NR','1993-04-26')
-mycursor.execute(sql, val)
-db.commit() """
+print("iniciando cuentas")
 
 accounts = Blueprint('accounts', __name__)
 
@@ -28,87 +14,101 @@ accounts = Blueprint('accounts', __name__)
 def createAccount():
     print("crear cuenta")
     try:
-        print("estoy dentro del bloque try")
+        print("Creando cuentas personales")
         account = request.json
         print(account)
-        print(account["name"])
-        sql = "insert into personal_accounts (name, debit) values (%s, %s)"
-        val = (account["name"], account["debit"])
-        
-        """ sql = "INSERT INTO personal_accounts (institution_id, name, color,type, credit_quote, credit_used, payment_date, start_billed_period, end_billed_period, billing_date, debit, user_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        val = (account["institution_id"], account["name"], account["color"], account["type"], account["credit_quote"], account["credit_used"], account["payment_date"], account["start_billed_period"], account["end_billed_period"], account["billing_date"], account["debit"], account["user_id"]) """
-        """ sql = "INSERT INTO personal_accounts (institution_id, user_id, name, color, type, debit, credit_limit, credit_used, payment_date, start_billed_period, end_billed_period) VALUES (null, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        val = (account["institution_id"], account["user_id"], account["name"], account["color"], account["type"], account["debit"], account["credit_limit"], account["credit_used"], account["available_credit"], account["payment_date"], account["start_billed_period"], account["end_billed_period"], account["available_total"], account["balance"]) """
+        sql = "INSERT INTO personal_accounts (institution_id, user_id, name, color,type, debit, credit_limit, credit_used, payment_date, start_billed_period, end_billed_period ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        val = (account["institution_id"], account["user_id"], account["name"], account["color"], account["type"], account["debit"],account["credit_limit"], account["credit_used"], account["payment_date"], account["start_billed_period"], account["end_billed_period"])
         mycursor.execute(sql, val)
         db.commit()
-        return jsonify({"data":"OK retorne esto no más jeje"})
+
+        sql = ("SELECT * FROM personal_accounts ORDER BY id DESC limit 1")
+        mycursor.execute(sql)
+        result = mycursor.fetchall()
+        account = result[0]
+        print(result)
+        account = {
+                'id': account[0],
+                'institution_id': account[1],
+                'user_id': account[2],
+                'name': account[3],
+                'color': account[4],
+                'type': account[5],
+                'debit': account[6],
+                'credit_limit': account[7],
+                'credit_used': account[8],
+                'payment_date': account[9],
+                'start_billed_period': account[10],
+                'end_billed_period': account[11]
+                }
+
+        return jsonify({"msg":"Cuenta creada correctamente"},{'cuenta':account})
     except Exception as e:
        print('Error al crear la cuenta', e)
-       return jsonify({"data":"no OK"})
+       return jsonify({"msg":"No se logró crear cuenta"})
 
 
 #--read all--
 @accounts.route('/accounts', methods=['GET'])
 def getAccounts():
     try:
-        print("obtener cuentas")
+        print("Obteniendo cuentas")
         mycursor.execute("SELECT * FROM personal_accounts")
         results = mycursor.fetchall()
         accounts = []
-        print(results)
+        """ print(results) """
         for account in results:
             accounts.append({
                 'id': account[0],
+                'institution_id': account[1],
+                'user_id': account[2],
                 'name': account[3],
                 'color': account[4],
                 'type': account[5],
+                'debit': account[6],
+                'credit_limit': account[7],
                 'credit_used': account[8],
-                'debit': account[6]
+                'payment_date': account[9],
+                'start_billed_period': account[10],
+                'end_billed_period': account[11]
                 })
             
-        for x in accounts:
-            print(x)
-        
-
-        """ for account in results:
-            account.append({
-                'id': account['id'],
-                'name': account['name'],
-                'color': account['color'],
-                'type': account['type'],
-                'credit_used': account['credit_used'],
-                'debit': account['debit']
-            })
-        for x in accounts:
+        """ for x in accounts:
             print(x) """
+        
+        print(f"se otuvieron {len(accounts)} cuentas")
+        
         return jsonify(accounts)
     except Exception as e:
        print('Error al obtener las cuentas', e)
 
-""" device = db.accounts.find_one({'_id': ObjectId(id)})
-  print(device)
-  return jsonify({
-    '_id': str(ObjectId(device['_id'])),
-    'inventory_ip': device['inventory_ip'],
-    'hostname': device['hostname'],
-    'parent_default': device['parent_default'],
-    'service': device['service'],
-    'tag': device['tag'],
-    'equipment': device['equipment']
-  }) """
-
 #--read--------------------------------------------------->
 @accounts.route('/accounts/<id>', methods=['GET'])
 def getAccount(id):
-    print("obteniendo cuenta unica", id)
+    print("Obteniendo cuenta unica", id)
     try:
         sql = ("SELECT * FROM personal_accounts WHERE id = %s")
         filtro = (id,)
         print(filtro, id)
         mycursor.execute(sql, filtro)
         result = mycursor.fetchall()
+        account = result[0]
         print(result)
-        return jsonify({"cuenta":result})
+        account = {
+                'id': account[0],
+                'institution_id': account[1],
+                'user_id': account[2],
+                'name': account[3],
+                'color': account[4],
+                'type': account[5],
+                'debit': account[6],
+                'credit_limit': account[7],
+                'credit_used': account[8],
+                'payment_date': account[9],
+                'start_billed_period': account[10],
+                'end_billed_period': account[11]
+                }
+        return jsonify({"msg":"Cuenta obtenida correctamente"},{"cuenta":account})
     except Exception as e:
        print('Error al obtener la cuenta', e)
        return jsonify({e: "error"})
@@ -123,17 +123,38 @@ def updateClient(id):
         print("editando cliente", id)
         print(request.json)
         account = request.json
-        sql = "UPDATE personal_accounts SET name = %s, debit = %s where id = %s"
-        val = (account["name"], account["debit"], id)
+        sql = "UPDATE personal_accounts set institution_id = %s, user_id = %s, name = %s, color = %s, type = %s, debit = %s, credit_limit = %s, credit_used = %s, payment_date = %s, start_billed_period = %s, end_billed_period = %s WHERE id = %s"
+
+        val = (account["institution_id"], account["user_id"], account["name"], account["color"], account["type"],account["debit"], account["credit_limit"], account["credit_used"],account["payment_date"], account["start_billed_period"], account["end_billed_period"], id)
         mycursor.execute(sql, val)
         db.commit()
 
-        #db.update_one({'_id': ObjectId(id)}, {"$set": request.json})
+        sql = "SELECT * FROM personal_accounts where id = %s"
+        filtro = (id,)
+        mycursor.execute(sql, filtro)
+        result = mycursor.fetchall()
+        account = result[0]
+        """ print(result) """
+        
+        account = {
+                'id': account[0],
+                'institution_id': account[1],
+                'user_id': account[2],
+                'name': account[3],
+                'color': account[4],
+                'type': account[5],
+                'debit': account[6],
+                'credit_limit': account[7],
+                'credit_used': account[8],
+                'payment_date': account[9],
+                'start_billed_period': account[10],
+                'end_billed_period': account[11]
+                }
 
-        return jsonify({"data":"*Si se logró agregar cliente"})
+        return jsonify({"msg":"Cliente editado correctamente"},{"cuenta":account})
     except Exception as e:
        print('error al actualizar el cliente', e)
-       return jsonify({"data":"*No se logró agregar cliente"})
+       return jsonify({"msg":"*No se logró agregar cliente"})
 
 #--delete
 @accounts.route('/accounts/<id>', methods=['DELETE'])
@@ -143,7 +164,7 @@ def deleteUser(id):
         val = (id,)
         mycursor.execute(sql, val)
         db.commit()
-        return jsonify({'message': 'Dispositivo eliminado'})
+        return jsonify({'msg': 'Cuenta eliminada correctamente'}, {"id":id})
     except Exception as e:
        print('error al actualizar el cliente', e)
-       return jsonify({"data":"*No se logró eliminar la cuenta"})
+       return jsonify({"msg":"*No se logró eliminar la cuenta"})

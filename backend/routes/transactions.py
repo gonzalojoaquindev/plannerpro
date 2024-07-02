@@ -1,18 +1,8 @@
-from flask import Flask, jsonify, request, Blueprint
-import mysql.connector
+from flask import jsonify, request, Blueprint
+from db.db import mycursor
+from db.db import db
 
-db = mysql.connector.connect(
-  host="localhost",
-  database= "plannerPro",
-  user="root",
-  password="mysql"
-)
-
-
-
-mycursor = db.cursor()
-
-print("conectandome a base de datos")
+print("iniciando transacciones")
 
 
 """ sql = "INSERT INTO users (id, name, email, password, avatar, initials, birthday) VALUES (%s, %s, %s, %s, %s, %s, %s)"
@@ -40,13 +30,33 @@ def createTran():
 
         mycursor.execute(sql, val)
         db.commit()
-        return jsonify({"data":"OK retorne esto no más jeje"})
+
+        mycursor.execute("SELECT * FROM transactions ORDER BY id DESC limit 1")
+        result = mycursor.fetchall()
+        item = result[0]
+        print(item)
+        transaction = {
+            'id': item[0],
+            'origin_account_id': item[1],
+            'destination_account_id': item[2],
+            'category_id': item[3],
+            'user_id': item[4],
+            'benefited_id': item[5],
+            'sheduled_id': item[6],
+            'date': item[7],
+            'expense': item[8],
+            'income': item[9],
+            'comments': item[10],
+            'type': item[11],
+            'sheduled': item[12],
+        }
+        return jsonify({"msg":"Transacción ingresada con exito"},transaction)
     except Exception as e:
        print('Error al crear la transacción', e)
        return jsonify({"data":"no OK"})
 
 
-#--read all--
+""" #--read all--
 @transactions.route('/transactions', methods=['GET'])
 def getTransactions():
     try:
@@ -72,12 +82,43 @@ def getTransactions():
                 'sheduled': item[12],
                 })
             
-        """ for x in transactions:
-            print(x) """
 
         return jsonify(transactions)
     except Exception as e:
-       print('Error al obtener las cuentas', e)
+       print('Error al obtener las cuentas', e) """
+            
+
+#--read all--desde vista
+@transactions.route('/transactions', methods=['GET'])
+def getTransactions():
+    try:
+        print("Obteneniendo transacciones")
+        mycursor.execute("SELECT * FROM transactions_summary")
+        results = mycursor.fetchall()
+        transactions = []
+        """ print(results) """
+        for item in results:
+            transactions.append({
+                'id': item[0],
+                'fecha': item[1],
+                'cuenta_origen': item[2],
+                'cuenta_destino': item[3],
+                'categoria': item[4],
+                'Gasto': item[5],
+                'Ingreso': item[6],
+                'Tipo': item[7],
+                'Beneficiado': item[8],
+                'Comentarios': item[9],
+                })
+            
+        """ for x in transactions:
+            print(x) """
+        print(f"Se obtuvieron {len(transactions)} transacciones")
+
+        return jsonify(transactions)
+    except Exception as e:
+       print('Error al obtener las transacciones', e)
+       return jsonify({"msg":"No se logró obtener transacciones"})
 
 
 #--read--------------------------------------------------->
@@ -127,12 +168,11 @@ def updateTran(id):
         mycursor.execute(sql, val)
         db.commit()
 
-        #db.update_one({'_id': ObjectId(id)}, {"$set": request.json})
 
-        return jsonify({"data":"*Si se logró agregar cliente"})
+        return jsonify({"msg":"Se editó el cliente correctamente"})
     except Exception as e:
        print('error al actualizar el cliente', e)
-       return jsonify({"data":"*No se logró agregar cliente"})
+       return jsonify({"msg":"*No se logró agregar cliente"})
 
 #--delete
 @transactions.route('/transactions/<id>', methods=['DELETE'])
@@ -143,6 +183,36 @@ def deleteTran(id):
         mycursor.execute(sql, val)
         db.commit()
         return jsonify({'message': 'Dispositivo eliminado'})
+    except Exception as e:
+       print('error al actualizar el cliente', e)
+       return jsonify({"data":"*No se logró eliminar la cuenta"})
+
+
+#---Obtener todos las caracteristicas
+@transactions.route('/transactions/all', methods=['GET'])
+def getTranAll():
+    try:
+        mycursor.execute("SELECT * FROM benefited")
+        results = mycursor.fetchall()
+        transactions = []
+        print(results)
+        for item in results:
+            transactions.append({
+                'id': item[0],
+                'origin_account_id': item[1],
+                'destination_account_id': item[2],
+                'category_id': item[3],
+                'user_id': item[4],
+                'benefited_id': item[5],
+                'sheduled_id': item[6],
+                'date': item[7],
+                'expense': item[8],
+                'income': item[9],
+                'comments': item[10],
+                'type': item[11],
+                'sheduled': item[12],
+                })
+
     except Exception as e:
        print('error al actualizar el cliente', e)
        return jsonify({"data":"*No se logró eliminar la cuenta"})

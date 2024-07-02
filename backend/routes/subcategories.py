@@ -1,30 +1,12 @@
 from flask import Flask, jsonify, request, Blueprint
-import mysql.connector
+from db.db import mycursor
+from db.db import db
 
-db = mysql.connector.connect(
-  host="localhost",
-  database= "plannerPro",
-  user="root",
-  password="mysql"
-)
-
-mycursor = db.cursor()
-
-print("conectandome a base de datos")
-"""
-id
-category_id
-color
-icon
-name
-description
-"""
-
+print("iniciando subcategorias")
 
 subcategories = Blueprint('subcategories', __name__)
 
-
-#---------Cuentas personales------------
+#---------Subcategorias------------
 
 #--create--
 @subcategories.route('/subcategories', methods=['POST'])
@@ -62,6 +44,33 @@ def getsubcategories():
                 'icon': subcategory[3],
                 'name': subcategory[4],
                 'description': subcategory[5]
+                })
+            
+        for x in subcategories:
+            print(x)
+        
+        return jsonify(subcategories)
+    except Exception as e:
+       print('Error al obtener las cuentas', e)
+
+
+#--Leer subcategorias + categorias
+
+@subcategories.route('/subcategories-detail', methods=['GET'])
+def getsubcategories():
+    try:
+        print("Obteniendo detalles de subcategorias")
+        mycursor.execute("SELECT * FROM subcategories_detail")
+        results = mycursor.fetchall()
+        subcategories = []
+        """    print(results) """
+        for subcategory in results:
+            subcategories.append({
+                'id': subcategory[0],
+                'name': subcategory[1],
+                'category': subcategory[2],
+                'color': subcategory[3],
+                'icon': subcategory[4],
                 })
             
         for x in subcategories:

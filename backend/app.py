@@ -1,21 +1,28 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
+
 from routes.accounts import accounts
 from routes.categories import categories
 from routes.subcategories import subcategories
 from routes.benefited import benefited
 from routes.transactions import transactions
+from routes.institutions import institutions
+from routes.planned_transactions import planned_transactions
+from routes.users import users
 
 
 app = Flask(__name__)
 
 
 app.register_blueprint(accounts)
+app.register_blueprint(benefited)
 app.register_blueprint(categories)
 app.register_blueprint(subcategories)
-app.register_blueprint(benefited)
 app.register_blueprint(transactions)
+app.register_blueprint(planned_transactions)
+app.register_blueprint(institutions)
+app.register_blueprint(users)
 
 
 

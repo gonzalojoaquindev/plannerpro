@@ -1,29 +1,13 @@
-from flask import Flask, jsonify, request, Blueprint
-import mysql.connector
-
-db = mysql.connector.connect(
-  host="localhost",
-  database= "plannerPro",
-  user="root",
-  password="mysql"
-)
-
-mycursor = db.cursor()
-
-print("conectandome a base de datos")
-"""
-id
-color
-icon
-name
-description
-"""
+from flask import jsonify, request, Blueprint
+from db.db import mycursor
+from db.db import db
+print("iniciando categorias")
 
 
 categories = Blueprint('categories', __name__)
 
 
-#---------Cuentas personales------------
+#---------Categrias------------
 
 #--create--
 @categories.route('/categories', methods=['POST'])
@@ -53,11 +37,11 @@ def createcategory():
 @categories.route('/categories', methods=['GET'])
 def getCategories():
     try:
-        print("obtener cuentas")
+        print("Obteniendo categorias")
         mycursor.execute("SELECT * FROM categories")
         results = mycursor.fetchall()
         categories = []
-        """    print(results) """
+        """  print(results) """
         for category in results:
             categories.append({
                 'id': category[0],
@@ -67,12 +51,14 @@ def getCategories():
                 'description': category[4]
                 })
             
-        for x in categories:
-            print(x)
+        """ for x in categories:
+            print(x) """
+        print(f"Se obtuvieron {len(categories)} categorias")
         
         return jsonify(categories)
     except Exception as e:
        print('Error al obtener las cuentas', e)
+       return jsonify({"msg":"No se logró obtener las categorias"})
 
 #--read--------------------------------------------------->
 @categories.route('/categories/<id>', methods=['GET'])
@@ -87,8 +73,8 @@ def getcategory(id):
         print(result)
         return jsonify({"cuenta":result})
     except Exception as e:
-       print('Error al obtener la cuenta', e)
-       return jsonify({e: "error"})
+       print('Error al obtener las categorias', e)
+       return jsonify({"msg":"No se logró obtener la categoria"})
 
   
 
